@@ -1,0 +1,43 @@
+/*
+  From sized-fuzz.pdf
+
+   Missing types:
+   - None.
+
+   Missing functions:
+   - iterate
+*/
+
+function kmeans
+  forall (i : size, j : size, e : sens)
+  (iters : nat[i])
+  (eps   : num[e])
+  (db    :[3 * i * e] (num, num) bag)
+  (centers : list((num, num))[j])
+  (iterate : (num[e]) -> ((num, num) bag) -o[3*e] (list((num, num))[j]) -> (fuzzy list((num, num))[j]))
+  : fuzzy list((num, num))[j] {
+    numcase iters of fuzzy list((num, num))[j] {
+        Z      => return centers
+      | S n[n] =>
+        sample next_centers = kmeans[n][j][e] n eps db centers iterate;
+        iterate eps db next_centers
+    }
+  }
+
+kmeans
+
+/* Using a more mathematical syntax
+
+val kmeans : ∀ i, j : ι. ∀ ε : r .
+    ℕ[i] → ℝ[e] → Bag(ℝ,ℝ) ⊸ [3 * i * e]
+    (ℝ[e] → Bag(ℝ,ℝ) [3 * i * e]⊸ List(ℝ,ℝ)[j] → ◯ List(ℝ,ℝ)[j]) ⊸
+    ◯ List(ℝ,ℝ)[j]
+
+let kmeans iters eps db center iterate =
+  case iters of
+      0     => return centers
+    | n + 1 => let ◯ next_centers = kmeans n eps db centers iterate in
+               iterate eps db next_centers
+
+*/
+

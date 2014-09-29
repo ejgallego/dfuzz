@@ -1,0 +1,210 @@
+theory RealPosInf
+
+  use import real.RealInfix
+  use import real.FromInt
+  use import real.Abs
+
+  type t = Finite real | Infinite
+
+  function add (x: t) (y: t) : t =
+    match x with
+      | Infinite -> Infinite
+      | Finite x ->
+        match y with
+          | Infinite -> Infinite
+          | Finite y -> Finite (x +. y)
+        end
+    end
+
+  function mul (x: t) (y: t) : t =
+    match x with
+      | Infinite -> Infinite
+      | Finite x ->
+        match y with
+          | Infinite -> Infinite
+          | Finite y -> Finite (x *. y)
+        end
+    end
+
+  function fromT (x : t) : t =
+     match x with
+       | Infinite -> Infinite
+       | Finite x -> Finite (abs x)
+     end
+
+  function fromReal (x : real) : t =
+    Finite (abs x)
+
+  function fromInt (x : int) : t =
+    Finite (abs (from_int x))
+
+  (* predicate lt (x y: t) = *)
+  (*   match x with *)
+  (*     | Infinite -> false *)
+  (*     | Finite x -> *)
+  (*       match y with *)
+  (*         | Infinite -> true *)
+  (*         | Finite y -> x <. y *)
+  (*       end *)
+  (*   end *)
+
+  (* predicate le (x y: t) = lt x y \/ x = y *)
+
+  predicate le (x y: t) =
+    match x with
+      | Infinite ->
+        match y with
+          | Infinite -> true
+          | Finite y -> false
+        end
+      | Finite x ->
+        match y with
+          | Infinite -> true
+          | Finite y -> x <=. y
+        end
+    end
+
+  predicate eq (x y: t) =
+    match x with
+      | Infinite ->
+        match y with
+          | Infinite -> true
+          | Finite x -> false
+        end
+      | Finite x ->
+        match y with
+          | Infinite -> false
+          | Finite y -> x = y
+        end
+    end
+
+  clone export relations.TotalOrder with type t = t, predicate rel = le,
+    lemma Refl, lemma Antisymm, lemma Trans, lemma Total
+
+ (* lemma p : forall n1:int, e1:t, i1:int.
+             eq (fromInt i1) (add (fromReal 1.000) (fromInt n1)) ->
+             le (add (mul (mul (fromReal 2.000) (fromInt n1)) (fromT e1)) (add (fromT e1) (fromT e1)))
+                     (mul (mul (fromReal 2.000) (fromInt i1)) (fromT e1))
+  *)
+
+end
+
+theory AbsR
+
+  use import real.RealInfix
+  use import real.FromInt
+  use import real.Abs
+
+  function fromReal (x : real) : real =
+    (abs x)
+
+  function fromInt (x : int) : real =
+    abs (from_int x)
+    
+end
+
+theory Tests
+
+  use import int.Int
+  use import real.RealInfix
+  use import real.FromInt
+  use import real.Abs
+  use import AbsR
+  
+  lemma p2 : forall n1:int, e1:real, i1:int.
+             (fromInt i1) = (fromReal 1.000) +. (fromInt n1) ->
+             ((fromReal 2.000) *. (fromInt n1) *. (fromReal e1)) +. ((fromReal e1) +. (fromReal e1)) <=.
+              ((fromReal 2.000) *. (fromInt i1) *. (fromReal e1))
+
+  (* CVC3 can prove this. *)
+  lemma p3 : forall e2:real, i5:int, m4:int. fromInt i5 = (fromReal 1.000 +. fromInt m4) -> fromReal e2 <=. (fromInt i5 *. fromReal e2)
+
+  (* Try *)
+  lemma p4 : forall e2:real, i5:int, m4:int. i5 = (1 + m4) /\ m4 >= 0 -> fromReal e2 <=. (fromInt i5 *. fromReal e2)
+
+  lemma p5 : forall e2:real, i5:int, m4:int. i5 = (1 + m4) /\ m4 >= 0 /\ e2 >=. 0.0 -> e2 <=. (from_int i5 *. e2)
+
+  lemma p6 : forall e2:real, i5:int, m4:int. i5 = (1 + m4) /\ m4 >= 0 /\ i5 >= 1 /\ e2 >=. 0.0 -> e2 <=. (from_int i5 *. e2)
+
+  (* Alt-ergo chokes on this unfortunately *)
+  lemma p7 : forall e2:real, i5:int, m4:int. i5 = (1 + m4) /\ m4 >= 0 -> from_int i5 >=. 1.0
+
+  (* This works better *)
+  lemma p8 : forall e2:real, i5:int, m4:int. i5 = (1 + m4) /\ from_int m4 >=. 0.0 -> from_int i5 >=. 1.0
+
+  (* So... *)
+  lemma p9 : forall e2:real, i5:int, m4:int. i5 = (1 + m4) /\ from_int m4 >=. 0.0 /\ e2 >=. 0.0 -> e2 <=. (from_int i5 *. e2)
+
+  (* Divison `a la Hsu *)
+  lemma div_hsu : forall r: real, r' : real. r >=. 0.0 /\ r' >=. 0.0 -> (r /. (r' +. 1.0)) *. r' <=. r
+
+  (* Umm *)
+  lemma div_mon : forall r: real. r >=. 0.0 -> r /. (r +. 1.0) <=. 1.0
+
+  (* Divison `a la Hsu, take 2 *)
+  lemma div_hsu_2 : forall r: real, r' : real. r >. 0.0 /\ r' >. 0.0 -> (r /. (r' +. 1.0)) *. r' <=. r
+
+  (* Divison `a la Hsu, take 3 *)
+  type t = Finite real | Infinite
+
+  function add (x: t) (y: t) : t =
+    match x with
+      | Infinite -> Infinite
+      | Finite x ->
+        match y with
+          | Infinite -> Infinite
+          | Finite y -> Finite (x +. y)
+        end
+    end
+
+  function mul (x: t) (y: t) : t =
+    match x with
+      | Infinite -> Infinite
+      | Finite x ->
+        match y with
+          | Infinite -> Infinite
+          | Finite y -> Finite (x *. y)
+        end
+    end
+
+(* > R div R' = R/R' if both R, R' are finite and strictly positive *)
+(* > R div R' = 0 if R = 0 or R' = infty *)
+(* > R div R' = infty otherwise *)
+
+  function div (x: t) (y: t) : t =
+    match y with
+      | Infinite -> Finite 0.0
+      | Finite y ->
+        match x with
+          | Infinite -> Infinite
+          | Finite x -> if x = 0.0 then
+                           Finite 0.0
+                        else if y = 0.0 then
+                           Infinite
+                        else
+                           Finite (x /. y)
+        end
+    end
+
+  function fromReal (x : real) : t =
+    Finite x
+
+  predicate le (x y: t) =
+    match x with
+      | Infinite ->
+        match y with
+          | Infinite -> true
+          | Finite y -> false
+        end
+      | Finite x ->
+        match y with
+          | Infinite -> true
+          | Finite y -> x <=. y
+        end
+    end
+
+  lemma div_hsu_3 : forall r: t, r' : t. le (fromReal 0.0) r /\ le (fromReal 0.0) r' -> le (mul (div r (add r' (fromReal 1.0))) r') r
+
+  (* R div' (R' + 1) * R' \leq R *)
+
+end

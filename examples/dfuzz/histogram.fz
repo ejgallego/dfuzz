@@ -1,0 +1,20 @@
+#include "dlibrary.fz"
+
+function histo
+  forall (n : size, e : sens)
+  (eps : num[e])
+  (buckets : list(num)[n]) 
+  (db :[n * e] num bag)
+             : list(fuzzy num)[n] {
+  listcase buckets of list(fuzzy num)[n] {
+    [] => nil@[fuzzy num] ()
+    | x :: xs[n'] => 
+      slot :[] = add_noise[e] eps (bagsize (bagfilter@[num] (fun (y:num) : bool {y<x}) db));
+      cons@[fuzzy num][n'] slot (histo[n'][e] eps xs db)
+/*      cons@[fuzzy num][n'] 
+      (add_noise[e] eps (bagsize db))  (histo[n'][e] eps xs db)
+*/
+  }
+}
+
+histo

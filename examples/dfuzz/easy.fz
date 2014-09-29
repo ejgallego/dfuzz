@@ -1,0 +1,17 @@
+/* Simple testcases to check the typechecker contexts, etc. */
+/* testcase to check context management on */
+
+function foo forall (i : sens) (n : num[i]) : num[i] {
+   n
+}
+
+function foo2 forall (a : size) (x : nat[S S Z]) : list(nat[S S Z])[S a] {
+	 cons@[nat[S S Z]][a] x (nil@[nat[S S Z]] ())
+}
+
+fun (n : db_source) {
+  m : =  foo[1.0];
+  return ""
+}
+
+

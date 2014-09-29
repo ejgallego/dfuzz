@@ -1,0 +1,42 @@
+// Add noise.
+
+/*
+  bagsize : A bag -o num Given a bag it returns the number of elements
+  in it.
+*/
+
+primitive bagsize forall(A) (b :[] A bag) : num { "bagsize" }
+
+primitive bagfilter forall(A) (pred : A -> bool) (b :[] A bag) : A bag { "bagfilter" }
+
+/*
+  bagsplit : (A -> bool) -> num -> A bag -o ( A bag x A bag ) 
+
+  Splits a bag in two bags: one containing the elements satisfying the
+  test (the first argument), the other the elements that don't pass
+  the test. The second argument (of type 'num') is the number ot steps
+  we allow the function run.
+*/
+
+primitive bagsplit
+   forall(A)
+   (pred : A -> bool)
+/* Disable the rt_limit parameter for now
+   (n    : num)
+*/
+   (b    :[] A bag) : ( A bag,  A bag ) { "bagsplit" }
+
+
+primitive add_noise
+  forall (e : sens)
+  (eps :[e] num[e])
+  (n :[e] num)
+  : fuzzy num { "add_noise" }
+
+/*
+function bagfilter forall (A) (test: A -> bool) (n : num) (b:[] A bag) : A bag {
+    let (yes, no) = bagsplit@[A] test n b;
+    yes
+}
+*/
+

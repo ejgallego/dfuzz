@@ -1,0 +1,69 @@
+R ::= floats                                    REALS
+
+r ::=                                           SENSITIVITY ANNOTATIONS
+      R+                                        concrete sensitivity (strictly positive)
+      inf                                       infinite sensitivity
+
+T ::=                                           TYPES
+      ()                                        single-valued unit type
+      num                                       "real" numbers
+      int                                       integers
+      bool                                      booleans
+      clipped                                   numbers whose absolute value is at most 1
+      T set                                     set
+      T bag                                     multiset
+      (T,T) finmap				finite map
+      (T,T)                                     tensor
+      (|T,T|)                                   with
+      T + T                                     sum
+      fuzzy T                                   probability distributions over T
+      T -o[r] T                                 r-sensitive function
+      T -o T                                    1-sensitive function
+      T -> T                                    ordinary function
+      X                                         type variable
+      mu X => T                                 recursive type
+
+B ::= forall (A, B)                             type variable
+      forall (A : size, B : sens)               sens variables
+
+e ::=                                           EXPRESSIONS
+      ()                                        value of void type
+      R                                         numbers
+      c                                         constant
+      e op e                                    binary functions (+,-,==,<=,!)
+      (e,e)                                     tensor-pairs
+      let (x,y) = e; e                          tensor destructor
+      (|e,e|)                                   with-pairs
+      fst e                                     with-pair destructor
+      snd e                                     with-pair destructor
+      inl@[T] e                                 injection into with-pair
+      inr@[T] e                                 injection into with-pair
+      case e {inl(x) => e | inr(x) => e}        case analysis
+      fuzz t                                    adding noise
+      fuzze n t                                 adding parametric noise
+      primiter n f e                            primitive iteration
+      sample x = e; e                           sampled let binding
+      return e					monadic return
+      fun (x:T) {e}                             ordinary function
+      fun (x:[r]T) {e}                          r-sensitive function
+      fun (x:[]T) {e}                           1-sensitive function
+      function x B (y:T) (z:T) ... : t {e} e    function definition with multiple arguments
+      e e                                       application
+      e [S]                                     sensitivity/size application
+      e@[T]                                     type application
+      fold[T] e                                 fold up a recursive type
+      unfold e                                  unfold a recursive type
+      x = e; e                                  let-binding
+      x : t = e; e                              let-binding with type assertion
+      typedef x = t; e                          type definition
+      if e then {e} else {e}			conditional
+
+Examples:
+
+  f = fun (x : num) { fun (y : num)  { x+y }};
+  f 5
+
+To add:
+  - concrete syntax for lists?
+  - polymorphism
+  - datatypes

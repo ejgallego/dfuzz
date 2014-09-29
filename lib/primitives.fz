@@ -1,0 +1,94 @@
+/* Copyright (c) 2013, The Trustees of the University of Pennsylvania
+   All rights reserved.
+
+   LICENSE: 3-clause BSD style.
+   See the LICENSE file for details on licensing.
+*/
+////////////////////////////////////////////////////////////////////////
+// Core primitives resulting from parser desugaring
+
+// Additive And
+primitive fst forall (A,B) (p :[] (| A, B |) ) : A { "_fst" }
+primitive snd forall (A,B) (p :[] (| A, B |) ) : B { "_snd" }
+
+// Additive or (inl inr are still keyworks because of their use in
+// pattern matching)
+
+primitive p_inl forall (A,B) (l :[] A) : (A + B) { "_inl" }
+primitive p_inr forall (A,B) (r :[] B) : (A + B) { "_inr" }
+
+// Infix operators
+primitive op_lor  (op1 : bool) (op2 : bool) : bool { "_lor" }
+primitive op_land (op1 : bool) (op2 : bool) : bool { "_land" }
+
+// Polymorphic equality (It was assumed in the old fuzz
+primitive op_eq   forall(A) (op1 :[] A) (op2 :[] A) : bool { "_eq" }
+
+// XXX: This should not be a primitive!
+primitive op_neq  forall(A) (op1 :[] bool) (op2 :[] bool) : bool { "_neq" }
+
+primitive op_lt   (op1 : num ) (op2 : num ) : bool { "_lt" }
+primitive op_gt   (op1 : num ) (op2 : num ) : bool { "_gt" }
+primitive op_lte  (op1 : num ) (op2 : num ) : bool { "_lte" }
+primitive op_gte  (op1 : num ) (op2 : num ) : bool { "_gte" }
+
+primitive op_add (op1 :[] num ) (op2 :[] num ) : num { "_add" }
+primitive op_sub (op1 :[] num ) (op2 :[] num ) : num { "_sub" }
+primitive op_mul (op1 : num ) (op2 : num )     : num { "_mul" }
+primitive op_div (op1 : num ) (op2 : num )     : num { "_div" }
+
+// Careful! Only sound if d >= 1.
+primitive op_ldiv (d : num ) (n : num )     : num { "_ldiv" }
+
+primitive op_exp (n : num )                    : num { "_exp" }
+primitive op_abs (n : num )                    : num { "_abs" }
+
+// Integer primitives
+primitive op_iadd (op1 :[] int ) (op2 :[] int ) : int { "_iadd" }
+primitive op_isub (op1 :[] int ) (op2 :[] int ) : int { "_isub" }
+primitive op_imul (op1 : int ) (op2 : int ) : int { "_imul" }
+primitive op_idiv (op1 : int ) (op2 : int ) : int { "_idiv" }
+
+// Those will go away in DFuzz
+primitive clip (n :[] num) : clipped                     { "clip" }
+
+// Fuzz is a core primitive now
+// primitive p_fuzz (epsilon : num) (n :[] num) : fuzzy num { "p_fuzz" }
+
+// Bounded iteration primitive:
+// primitive b_iter forall (A) (n : num) (f :[n] A -o[m] A) (elem :[n*m] A) : A
+
+////////////////////////////////////////////////////////////////////////
+// XXX: Move to lib, only "core" primitives should remain in this file
+// We don't support rationals in our grammar :/
+primitive div2 (n : [0.5] num) : num { "div2" }
+primitive div3 (n : [0.333] num) : num { "div3" }
+
+// Probability monad, return and bind
+primitive return   forall(A)   (x : A)                              : fuzzy A { "_return" }
+primitive p_sample forall(A,B) (x :[] fuzzy A) (f :[] A -> fuzzy B) : fuzzy B { "_bind"   }
+
+primitive cswp (t :[] (num, num)) : (num, num) { "cswp" }
+
+primitive num2string (n : num) : string { "num2string" }
+primitive string_concat (s1 : string) (s2 : string) : string { "string_cc" }
+
+primitive if_then_else forall (A) (c :[] bool) (opts :[] (| () -o A, () -o A |)) : A { "_if_then_else" }
+
+////////////////////////////////////////////////////////////////////////
+// Parsing primitives:
+
+primitive parse_census (dbs :[] db_source) : (num, string, string, string, num, num, num, num) bag             { "parse_census" }
+primitive parse_apache (dbs :[] db_source) : ((int, int, int, int), string) bag                                { "parse_apache" }
+primitive parse_points (dbs :[] db_source) : (num, num) bag                                                    { "parse_points" }
+primitive parse_student (dbs:[] db_source) : (num, string, bool, clipped, bool, clipped, bool, clipped) bag    { "parse_student" }
+primitive parse_queries (dbs:[] db_source) : (clipped, clipped, clipped, clipped, clipped, clipped, clipped, clipped) bag { "parse_queries" }
+
+////////////////////////////////////////////////////////////////////////
+// Dependent stuff
+// primitive zero (u : ())                   : nat[0] { "zero" }
+// primitive succ forall(i:size) (e: nat[i]) : nat[i+1] { "succ" }
+
+primitive nil  forall(A)         (u : ())                      : list(A)[Z]   { "nil" }
+primitive cons forall(A, i:size) (e :[] A) (el :[] list(A)[i]) : list(A)[S i] { "cons" }
+

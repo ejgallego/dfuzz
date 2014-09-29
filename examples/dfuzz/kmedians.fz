@@ -1,0 +1,93 @@
+/* Copyright (c) 2013, The Trustees of the University of Pennsylvania
+   All rights reserved.
+
+   LICENSE: 3-clause BSD style.
+   See the LICENSE file for details on licensing.
+*/
+
+/*
+  From sized-fuzz.pdf
+
+   Missing types:
+   - loc
+
+   Missing functions:
+   - bag : (b : loc bag) : (loc bag) bag)
+   - bagcontains : (b : loc bag) (l : loc) : bool
+   - bagproduct: (b1 : loc bag) (b2 : loc bag) : (loc, loc) bag
+   - bagswap :
+   - bagadd : 
+   - select : 
+   - score : 
+   - cost : 
+   - Arithmetic.
+   - add_noise : (eps: num[e]) -o[e] (n : num) : Circle num
+   - exp_noise : num[s] -> (loc, loc) bag -> ((loc, loc) -o[s] db -o num) -> num[e] -o[e] db -o Circle (loc, loc)
+*/
+
+#include "dlibrary.fz"
+
+typedef loc = (num, num);
+
+// More dummies
+
+function newbag (void : ()) : num { 0.0 }
+function bagadd (void : ()) : num { 0.0 }
+function bagswap (void : ()) : num { 0.0 }
+function bagproduct (void : ()) : num { 0.0 }
+function bagcontains (void : ()) : num { 0.0 }
+function select (void : ()) : num { 0.0 }
+function exp_noise (void : ()) : num { 0.0 }
+
+function score
+  forall (s : sens)
+  (cost : (loc bag) -> (loc bag) -o[s] num)
+  (locs : loc bag)
+  : ( (loc, loc) -> (loc bag) -o[s] num) {
+  fun (swap : (loc, loc)) : (loc bag) -o[s] num {
+    let (x, y) = swap;
+    fun (D :[s] loc bag) : (loc bag) -o[s] num {
+       cost (bagswap x y locs) D
+    }
+  }
+}
+
+function kmedians_aux
+  forall (i : size, s : sens, e : sens)
+  (iter : nat[i])
+  (F0   : (loc bag))
+  (delta : num[s])
+  (cost : (loc bag) -> (loc bag) -o[s] num)
+  (eps : num[e])
+  (V : loc bag)
+  (D :[2 * e * s * i] loc bag)
+  : fuzzy (loc bag, (loc bag) bag) {
+    numcase iter of fuzzy (loc bag, (loc bag) bag) {
+      Z       => return (F0, newbag F0)
+    | S x [n] =>
+       sample pair     = kmedians_aux x F0 delta cost eps V D;
+       let (Fi, Fs)    = pair;       /* Include pattern matching in sample? */
+       let (_, F_comp) = bagsplit (fun (l : loc) : bool { bagcontains V l}) Fi;
+       swaps : = bagproduct Fi F_comp;
+       sample best = exp_noise delta swaps (score cost Fi) (2 * eps * delta) D;
+       let (a, b) = best;
+       Fnew  : = bagswap a b Fi;
+       return (Fnew, bagadd Fs Fnew)
+   }
+}
+
+function kmedians
+  forall (i : size, s : sens, e : sens, n : size)
+  (T : nat[i]) (delta : num[s]) (V : loc bag)
+  (cost : (loc bag) -> (loc bag) -o[s] num)
+  (D :[e] loc bag) (eps : num[e])
+  (k : nat[n])
+  : fuzzy (loc bag) {
+  sample F1     = select k V;
+  eps' :        = eps / (2 * delta * (T + 1));
+  sample result = kmedians_aux T F1 delta cost eps' V D;
+  let (_, Fs)   = result;
+  exp_noise delta Fs cost (2 * eps' * delta) D
+}
+
+kmedians

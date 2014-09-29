@@ -1,0 +1,57 @@
+/* Copyright (c) 2013, The Trustees of the University of Pennsylvania
+   All rights reserved.
+
+   LICENSE: 3-clause BSD style.
+   See the LICENSE file for details on licensing.
+*/
+/*
+  From sized-fuzz.pdf
+
+   Missing types:
+   - approx_db
+   - db_type
+
+   Missing functions:
+   - PA  (private distinguisher)
+
+   - DUA (database update algorithm)
+
+   - eval_q
+*/
+
+#include "dlibrary.fz"
+
+/* dummy types */
+typedef approx_db = num ;
+typedef db_type   = num ;
+typedef query     = num ;
+
+function init_approx
+  (void : ())
+  : approx_db
+  {
+  0.0
+  }
+
+function IDC
+  forall (i : size, e : sens)
+  (iter : nat[i])
+  (eps : num[e])
+  (db :[2 * i * e] db_type)
+  (qs: query bag)
+  (PA : (query bag) -> approx_db
+        -> db_type -o[e] (fuzzy query) )
+  (DUA : approx_db -> query -> num -> approx_db)
+  (eval_q : query -> db_type -o[1.0] num)
+  : fuzzy approx_db {
+    numcase iter of fuzzy approx_db {
+        Z      => return (init_approx ())
+      | S n[n] =>
+        sample approx = IDC[n][e] n eps db qs PA DUA eval_q;
+        sample q      = PA qs approx db;
+	sample actual = add_noise[e] eps (eval_q q db);
+        return (DUA approx q actual)
+    }
+  }
+
+IDC

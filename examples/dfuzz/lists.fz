@@ -1,0 +1,26 @@
+function map
+  forall (A, B, i : size, s : sens)
+  (f :[i] (A -o[s] B))
+  (l :[s] list(A)[i])
+  : list(B)[i] {
+
+  listcase l of list(B)[i] {
+    []          => nil@[B] ()
+  | x :: xs [m] => cons@[B][m] (f x) (map@[A]@[B][m][s] f xs)
+  }
+}
+
+function foldr
+  forall (A, B, i : size, s : sens, r : sens)
+  (f :[i] (A -o[s] B -o[r] B))
+  (b :[i*r] B)
+  (l :[s] list(A)[i])
+  : B {
+
+  listcase l of B {
+    []          => b
+  | x :: xs [m] => f x (foldr@[A]@[B][m][s][r] f b xs)
+  }
+}
+
+map
