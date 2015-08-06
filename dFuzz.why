@@ -55,7 +55,7 @@ theory RealPosInf
       | Infinite ->
         match y with
           | Infinite -> true
-          | Finite y -> false
+          | Finite _ -> false
         end
       | Finite x ->
         match y with
@@ -69,7 +69,7 @@ theory RealPosInf
       | Infinite ->
         match y with
           | Infinite -> true
-          | Finite x -> false
+          | Finite _ -> false
         end
       | Finite x ->
         match y with
@@ -100,7 +100,7 @@ theory AbsR
 
   function fromInt (x : int) : real =
     abs (from_int x)
-    
+
 end
 
 theory Tests
@@ -110,7 +110,7 @@ theory Tests
   use import real.FromInt
   use import real.Abs
   use import AbsR
-  
+
   lemma p2 : forall n1:int, e1:real, i1:int.
              (fromInt i1) = (fromReal 1.000) +. (fromInt n1) ->
              ((fromReal 2.000) *. (fromInt n1) *. (fromReal e1)) +. ((fromReal e1) +. (fromReal e1)) <=.
@@ -127,10 +127,10 @@ theory Tests
   lemma p6 : forall e2:real, i5:int, m4:int. i5 = (1 + m4) /\ m4 >= 0 /\ i5 >= 1 /\ e2 >=. 0.0 -> e2 <=. (from_int i5 *. e2)
 
   (* Alt-ergo chokes on this unfortunately *)
-  lemma p7 : forall e2:real, i5:int, m4:int. i5 = (1 + m4) /\ m4 >= 0 -> from_int i5 >=. 1.0
+  lemma p7 : forall i5:int, m4:int. i5 = (1 + m4) /\ m4 >= 0 -> from_int i5 >=. 1.0
 
   (* This works better *)
-  lemma p8 : forall e2:real, i5:int, m4:int. i5 = (1 + m4) /\ from_int m4 >=. 0.0 -> from_int i5 >=. 1.0
+  lemma p8 : forall i5:int, m4:int. i5 = (1 + m4) /\ from_int m4 >=. 0.0 -> from_int i5 >=. 1.0
 
   (* So... *)
   lemma p9 : forall e2:real, i5:int, m4:int. i5 = (1 + m4) /\ from_int m4 >=. 0.0 /\ e2 >=. 0.0 -> e2 <=. (from_int i5 *. e2)
@@ -194,7 +194,7 @@ theory Tests
       | Infinite ->
         match y with
           | Infinite -> true
-          | Finite y -> false
+          | Finite _ -> false
         end
       | Finite x ->
         match y with
