@@ -1,7 +1,7 @@
 # Program main file
 
 # Ocamlbuild
-OCBOPTS=-use-ocamlfind -pkgs unix -pkgs why3
+OCBOPTS=-use-ocamlfind -pkg unix,menhirLib,why3
 OCAMLBUILD=ocamlbuild $(OCBOPTS)
 
 VERSION=native

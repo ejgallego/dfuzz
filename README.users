@@ -1,10 +1,10 @@
 How to install fuzz
 -------------------
 
-First, you need ocaml >= 4.01 plus ocamlfind, ocamlbuild and the why3
+First, you need ocaml >= 4.02 plus ocamlfind, ocamlbuild and the why3
 dependencies plus standard gnu tools like gcc and make.
 
-Then install the why3 0.83 ocaml libs from:
+Then install the why3 0.86 ocaml libs from:
 
 - http://why3.lri.fr/
 
@@ -40,7 +40,7 @@ How to compile and run programs
 
 1.- Typecheck a program:
 
- $ ./dfuzz examples/fuzz/01-over-40.fz
+ $ ./dfuzz examples/dfuzz/cdf.fz
 
 Running the program is still not supported in dFuzz.
 

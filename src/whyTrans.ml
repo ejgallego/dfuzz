@@ -51,9 +51,9 @@ let why_debug3  fi   = message 6 Opts.SMT fi
 (* let list_theory : WT.theory = WEnv.find_theory WC.env ["list"] "List" *)
 (* let exp_theory  : WT.theory = WEnv.find_theory WC.env ["real"] "ExpLog" *)
 (* let fin_theory  : WT.theory = WEnv.find_theory WC.env ["real"] "FromInt" *)
-let real_theory : WT.theory = WEnv.find_theory WC.env ["real"] "Real"
-let int_theory     : WT.theory = WEnv.find_theory WC.env ["int"]  "Int"
-let dfuzz_theory   : WT.theory = WEnv.find_theory WC.env ["dFuzz"]   "AbsR"
+let real_theory    : WT.theory = WEnv.read_theory WC.env ["real"] "Real"
+let int_theory     : WT.theory = WEnv.read_theory WC.env ["int"]  "Int"
+let dfuzz_theory   : WT.theory = WEnv.read_theory WC.env ["dFuzz"]   "AbsR"
 (* let dfuzz_r_theory : WT.theory = WEnv.find_theory WC.env ["dFuzz"]   "RealPosInf" *)
 (* let dfuzz_i_theory : WT.theory = WEnv.find_theory WC.env ["dFuzz"]   "IntPos" *)
 
