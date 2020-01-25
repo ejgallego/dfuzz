@@ -28,9 +28,6 @@ module H  = Hashtbl
 open Support.Error
 module Opts = Support.Options
 
-(* Printing routines *)
-open Format
-
 (* Native @@ is already in ocaml 4.0 *)
 let (@@) x y = x y
 
@@ -51,9 +48,11 @@ let why_debug3  fi   = message 6 Opts.SMT fi
 (* let list_theory : WT.theory = WEnv.find_theory WC.env ["list"] "List" *)
 (* let exp_theory  : WT.theory = WEnv.find_theory WC.env ["real"] "ExpLog" *)
 (* let fin_theory  : WT.theory = WEnv.find_theory WC.env ["real"] "FromInt" *)
+
 let real_theory    : WT.theory = WEnv.read_theory WC.env ["real"] "Real"
 let int_theory     : WT.theory = WEnv.read_theory WC.env ["int"]  "Int"
-let dfuzz_theory   : WT.theory = WEnv.read_theory WC.env ["dFuzz"]   "AbsR"
+let dfuzz_theory   : WT.theory = WEnv.read_theory WC.env ["dFuzz"] "AbsR"
+
 (* let dfuzz_r_theory : WT.theory = WEnv.find_theory WC.env ["dFuzz"]   "RealPosInf" *)
 (* let dfuzz_i_theory : WT.theory = WEnv.find_theory WC.env ["dFuzz"]   "IntPos" *)
 
@@ -64,7 +63,7 @@ let dfuzz_theory   : WT.theory = WEnv.read_theory WC.env ["dFuzz"]   "AbsR"
 (* let ts_rinf = WT.ns_find_ts dfuzz_r_theory.WT.th_export ["t"] *)
 
 (* Get the why3 type of a kind *)
-let rec why3_type kind = match kind with
+let why3_type kind = match kind with
   | Size -> Ty.ty_int
   (* | Sens -> Ty.ty_app ts_rinf [] *)
   | Sens -> Ty.ty_real
@@ -134,12 +133,13 @@ let rec get_why3_var ctx v =
     (* Ugly but effective *)
     get_why3_var ctx v
 
-let why3_int s   = T.t_const (Why3.Number.ConstInt (Why3.Number.int_const_dec (string_of_int s)))
+let why3_int s   = T.t_const (Why3.Number.ConstInt (Why3.Number.int_const_of_int s))
 let why3_float f =
   let (f,i) = modf f                                   in
   let is    = Printf.sprintf "%.0f" i                  in
   let fs    = String.sub (Printf.sprintf "%.3f" f) 2 3 in
-  T.t_const (Why3.Number.ConstReal (Why3.Number.real_const_dec is fs None))
+  (* T.t_const (Why3.Number.ConstReal (Why3.Number.real_const_dec is fs None)) *)
+  T.t_const Why3.Number.(ConstReal { rc_negative = false; rc_abs = real_const_dec is fs None}) Ty.ty_real
 
 let why3_fin f =
   T.t_app_infer why3_fromreal [why3_float f]
@@ -179,7 +179,7 @@ let why3_eq_cs ctx (SiEq (si1, si2)) =
     let w_si2 = why3_si ctx si2 in
     T.ps_app why3_eq [w_si1; w_si2]
 
-let rec why3_cs cs =
+let why3_cs cs =
   let ctx     = cs.c_kind_ctx          in
   let w_lower = why3_si ctx cs.c_lower in
   let w_upper = why3_si ctx cs.c_upper in

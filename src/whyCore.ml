@@ -24,7 +24,7 @@ let provers : Whyconf.config_prover Whyconf.Mprover.t =
   Whyconf.get_provers config
 
 (* builds the environment from the [loadpath] *)
-let env : Env.env = Env.create_env @@
-  (Whyconf.loadpath main) @
-  ["./"]
+let env : Env.env =
+  try Env.create_env @@ (Whyconf.loadpath main) @ ["./"]
+  with _ -> Format.eprintf "foo@\n%!"; raise (Invalid_argument "foo")
 

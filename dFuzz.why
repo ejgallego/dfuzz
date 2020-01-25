@@ -1,8 +1,8 @@
 theory RealPosInf
 
-  use import real.RealInfix
-  use import real.FromInt
-  use import real.Abs
+  use real.RealInfix
+  use real.FromInt
+  use real.Abs
 
   type t = Finite real | Infinite
 
@@ -91,9 +91,9 @@ end
 
 theory AbsR
 
-  use import real.RealInfix
-  use import real.FromInt
-  use import real.Abs
+  use real.RealInfix
+  use real.FromInt
+  use real.Abs
 
   function fromReal (x : real) : real =
     (abs x)
@@ -105,11 +105,11 @@ end
 
 theory Tests
 
-  use import int.Int
-  use import real.RealInfix
-  use import real.FromInt
-  use import real.Abs
-  use import AbsR
+  use int.Int
+  use real.RealInfix
+  use real.FromInt
+  use real.Abs
+  use AbsR
 
   lemma p2 : forall n1:int, e1:real, i1:int.
              (fromInt i1) = (fromReal 1.000) +. (fromInt n1) ->

@@ -4,7 +4,6 @@
    LICENSE: 3-clause BSD style.
    See the LICENSE file for details on licensing.
 *)
-open Format
 open Support.FileInfo
 
 (* ---------------------------------------------------------------------- *)

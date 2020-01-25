@@ -124,7 +124,7 @@ let info lexbuf =
 
 let text = Lexing.lexeme
 
-let stringBuffer = ref (String.create 2048)
+let stringBuffer = ref (Bytes.create 2048)
 let stringEnd = ref 0
 
 let resetStr () = stringEnd := 0
@@ -133,24 +133,24 @@ let addStr ch =
   let x = !stringEnd in
   let buffer = !stringBuffer
 in
-  if x = String.length buffer then
+  if x = Bytes.length buffer then
     begin
-      let newBuffer = String.create (x*2) in
-      String.blit buffer 0 newBuffer 0 x;
-      String.set newBuffer x ch;
+      let newBuffer = Bytes.create (x*2) in
+      Bytes.blit buffer 0 newBuffer 0 x;
+      Bytes.set newBuffer x ch;
       stringBuffer := newBuffer;
       stringEnd := x+1
     end
   else
     begin
-      String.set buffer x ch;
+      Bytes.set buffer x ch;
       stringEnd := x+1
     end
 
-let getStr () = String.sub (!stringBuffer) 0 (!stringEnd)
+let getStr () = Bytes.(to_string (sub (!stringBuffer) 0 (!stringEnd)))
 
 let extractLineno yytext offset =
-  int_of_string (String.sub yytext offset (String.length yytext - offset))
+  int_of_string String.(sub yytext offset (length yytext - offset))
 }
 
 

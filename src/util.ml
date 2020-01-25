@@ -20,7 +20,8 @@ let get_terminal_size () =
   try
     begin
       try
-        Scanf.fscanf in_channel "%d %d"
+        let sc = Scanf.Scanning.from_channel in_channel in
+        Scanf.bscanf sc "%d %d"
           (fun rows cols ->
              ignore (Unix.close_process_in in_channel);
              (rows, cols))
@@ -36,15 +37,3 @@ let get_terminal_size () =
      builtin wrapper for tput, however it does allow us to don't
      require tput or stty *)
   (* try int_of_string (Sys.getenv "COLUMNS") *)
-
-(* String.map not until Ocaml 4.00 *)
-let map f s =
-
-  let l = String.length s in
-
-  if l = 0 then s else
-    begin
-      let r = String.create l in
-      for i = 0 to l - 1 do String.unsafe_set r i (f(String.unsafe_get s i)) done;
-      r
-    end

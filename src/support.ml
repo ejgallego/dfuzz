@@ -116,17 +116,6 @@ module Error = struct
     | SMT         -> "[SMT    ]"
     | Backend     -> "[Backend]"
 
-  let level_to_string = function 
-    | 0 -> "Error  "
-    | 1 -> "Warning"
-    | 2 -> "Info   "
-    | 3 -> "Info+  "
-    | 4 -> "Debug 1"
-    | 5 -> "Debug 2"
-    | 6 -> "Debug 3"
-    | 7 -> "Debug 4"
-    | _ -> ""
-
   let level_to_string = function
     | 0 -> "E "
     | 1 -> "W "

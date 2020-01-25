@@ -1,14 +1,12 @@
 (* Copyright (c) 2013, The Trustees of the University of Pennsylvania
+   Copyright (c) 2018, MINES ParisTech
    All rights reserved.
 
    LICENSE: 3-clause BSD style.
    See the LICENSE file for details on licensing.
 *)
-open Unix
 
-open Ctx
 open Syntax
-open Backend
 
 open Support.Options
 open Support.Error
@@ -83,7 +81,7 @@ let type_check program =
   main_info  dp "CS: @[<v>%a@]" (Print.pp_list Print.pp_cs) cs;
 
   (* let res = WS.send_smt (List.hd (List.tl cs)) in *)
-  let res = List.map WS.send_smt cs in
+  let _res = List.map WS.send_smt cs in
   ()
 
   (* Disabled as we don't run the programs for now *)
@@ -150,7 +148,7 @@ let main () =
 (* === Call the main function and catch any exceptions === *)
 
 let res =
-  try main();
-      0
+  try main (); 0
   with Exit x -> x
+
 let () = exit res

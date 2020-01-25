@@ -135,7 +135,7 @@ let rec pp_si fmt s =
   | SiSup  (bi, k, s)      -> fprintf fmt "sup(%a : %a, %a)"  pp_binfo bi pp_kind k pp_si s
   | SiCase (s, s0, bi, sn) -> fprintf fmt "case(%a, %a, %a, %a)" pp_si s pp_si s0 pp_binfo bi pp_si sn
 
-let rec pp_si_op fmt o =
+let pp_si_op fmt o =
   match o with
   | None    -> fprintf fmt "?"
   | Some si -> pp_si fmt si
@@ -145,9 +145,9 @@ let rec pp_si_op fmt o =
 
 let pp_tyvar_ctx_elem ppf (v, k) =
   if !debug_options.full_context then
-    fprintf ppf "%-10a :%s %a" pp_vinfo v (u_sym Symbols.SubTau) pp_kind k
+    fprintf ppf "%a :%s %a" pp_vinfo v (u_sym Symbols.SubTau) pp_kind k
   else
-    fprintf ppf "%-10a" pp_vinfo v
+    fprintf ppf "%a" pp_vinfo v
 
 let pp_tyvar_ctx = pp_list pp_tyvar_ctx_elem
 
@@ -216,7 +216,7 @@ let pp_type_list = pp_list pp_type
 
 let pp_var_ctx_elem ppf (v, ty) =
   if !debug_options.full_context then
-    fprintf ppf "%-10a : @[%a@]" pp_vinfo v pp_type ty
+    fprintf ppf "%a : @[%a@]" pp_vinfo v pp_type ty
   else
     fprintf ppf "%a" pp_vinfo v
 

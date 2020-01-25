@@ -11,10 +11,10 @@ open Syntax
 open Support.FileInfo
 
 let parser_error   fi = Support.Error.error_msg   Support.Options.Parser fi
-let parser_warning fi = Support.Error.message   1 Support.Options.Parser fi
-let parser_info    fi = Support.Error.message   2 Support.Options.Parser fi
+(* let parser_warning fi = Support.Error.message   1 Support.Options.Parser fi *)
+(* let parser_info    fi = Support.Error.message   2 Support.Options.Parser fi *)
 
-let si_zero  = SiConst 0.0
+(* let si_zero  = SiConst 0.0 *)
 let si_one   = SiConst 1.0
 let si_infty = SiInfty
 let dummy_ty  = TyPrim PrimUnit
@@ -98,9 +98,11 @@ let mk_prim_ty_app ctx info prim arglist =
 
 let mk_lambda info bi oty term = TmAbs(info, bi, oty, None, term)
 
+(*
 let rec remove_quantifiers ty = match ty with
     TyForall(_,_,ty_i) -> remove_quantifiers ty_i
   | _ -> ty
+*)
 
 %}
 

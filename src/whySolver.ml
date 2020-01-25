@@ -34,7 +34,7 @@ let why_debug3  fi   = message 6 Opts.SMT fi
 
 let alt_ergo : Whyconf.config_prover =
   let fp = Whyconf.parse_filter_prover "Alt-Ergo"   in
-  (** all provers that have the name "Alt-Ergo" *)
+  (* all provers that have the name "Alt-Ergo" *)
   let provers = Whyconf.filter_provers WC.config fp in
   if Whyconf.Mprover.is_empty provers then begin
     Format.eprintf "Prover Alt-Ergo not installed or not configured@.";
@@ -44,8 +44,9 @@ let alt_ergo : Whyconf.config_prover =
 
 (* loading the Alt-Ergo driver *)
 let alt_ergo_driver : Driver.driver =
+  let main = Whyconf.get_main WC.config in
   try
-    Driver.load_driver WC.env alt_ergo.Whyconf.driver []
+    Whyconf.load_driver main WC.env alt_ergo.Whyconf.driver []
   with e ->
     Format.eprintf "Failed to load driver for alt-ergo: %a@."
       Exn_printer.exn_printer e;
@@ -69,8 +70,9 @@ let post cs =
 
   let result : Call_provers.prover_result =
     Call_provers.wait_on_call
-      (Driver.prove_task ~command:alt_ergo.Whyconf.command ~timelimit:60
-  	 alt_ergo_driver task ()) ()                                   in
+      (Driver.prove_task ~command:alt_ergo.Whyconf.command
+  	 alt_ergo_driver task ~limit:CP.empty_limit)
+  in
 
   why_info dp "@[alt-ergo answers %a@]@." Call_provers.print_prover_result result;
   match result.CP.pr_answer with

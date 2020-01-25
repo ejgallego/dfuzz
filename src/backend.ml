@@ -6,9 +6,7 @@
 *)
 open Format
 
-open Ctx
 open Syntax
-open Print
 
 (*
   We compile to native Caml code
@@ -29,7 +27,7 @@ let () = exit (fuzz_main query)"
 
 let paren s = "(" ^ s ^ ")"
 
-let rec gen_primitive prim =
+let gen_primitive prim =
   match prim with
     PrimTUnit        -> "()"
   | PrimTNum(r)      -> string_of_float r
@@ -111,7 +109,7 @@ let rec gen_term ppf t =
     | TmTypedef (_i,_tn,_ty,tm) -> gen_term ppf tm
     | TmUnfold (_i, tm) -> gen_term ppf tm
       (* fprintf ppf "(m_unfold %a)" gen_term tm *)
-    | TmFold(_i, ty, tm) -> gen_term ppf tm
+    | TmFold(_i, _ty, tm) -> gen_term ppf tm
       (* fprintf ppf "(m_fold [%a] %a)" pp_type ty gen_term tm *)
 
     (* In OCaml, for both cases we just ignore it *)
@@ -127,7 +125,7 @@ let rec gen_term ppf t =
     | TmUnpack(_,_,_,_,_)    -> fprintf ppf "XXX TODO: TmUnpack"
     | TmPack(_,_,_,_)        -> fprintf ppf "XXX TODO: TmPack"
 
-let rec gen_program ppf t =
+let gen_program ppf t =
   fprintf ppf "%s@\n" header;
   gen_term ppf t;
   fprintf ppf "%s@." body

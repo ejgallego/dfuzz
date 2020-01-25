@@ -61,7 +61,7 @@ let (>>=) (m : 'a checker) (f : 'a -> 'b checker) : 'b checker =
 
 let (>>) m f = m >>= fun _ -> f
 
-let return (x : 'a) : 'a checker = fun ctx -> Right x
+let return (x : 'a) : 'a checker = fun _ctx -> Right x
 
 let get_ctx : context checker =
   fun ctx -> Right ctx
@@ -197,7 +197,7 @@ module TypeSub = struct
       check_type_sub i tyl2 tyr2 >>
       check_sens_leq i sir sil
 
-    | TyMu(_bl, tyl), TyMu(_br, tyr) ->
+    | TyMu(_bl, _tyl), TyMu(_br, _tyr) ->
       (* Recursive types disabled for now *)
       fail
 
@@ -215,10 +215,10 @@ module TypeSub = struct
       check_sens_eq i sil sir
 
     (* Subtype both sized types to standard reals if needed. *)
-    | TySizedNat(sil), TyPrim PrimInt ->
+    | TySizedNat(_sil), TyPrim PrimInt ->
       return ()
 
-    | TySizedNum(sil), TyPrim PrimNum ->
+    | TySizedNum(_sil), TyPrim PrimNum ->
       return ()
 
     | TyList(tyl, sil), TyList(tyr, sir) ->
@@ -271,7 +271,7 @@ module TypeSub = struct
     ty_debug i "<-> [%3d] Application of @[%a@] to @[%a@]" !ty_seq Print.pp_type ty_arr Print.pp_type ty_arg;
     match ty_arr with
     (* Here we do inference of type applications *)
-    | TyForall(bi, Star, ty)   ->
+    | TyForall(_bi, Star, ty)   ->
       infer_tyapp_very_simple i ty ty_arg
 
     | TyLollipop(tya, si, tyb) ->
@@ -363,7 +363,7 @@ let case_sens (si : si) (bsis0 : bsi list) (bi : binder_info) (bsisn : bsi list)
 (* Main typing routines                                               *)
 (**********************************************************************)
 let rec kind_of (i : info) (si : si) : kind checker =
-  ty_debug i "--> [%3d] Enter kind_of: @[%10a@]" !ty_seq
+  ty_debug i "--> [%3d] Enter kind_of: @[%a@]" !ty_seq
     (Print.limit_boxes Print.pp_si) si; incr ty_seq;
 
   let ck k = if k <> Star then return k else fail i @@ WrongKind(Sens, k) in
@@ -390,7 +390,7 @@ let rec kind_of (i : info) (si : si) : kind checker =
     return Sens
 
   | SiSup  (bi, k, s)         ->
-    with_extended_ty_ctx bi.b_name k (kind_of i s) >>= fun k' ->
+    with_extended_ty_ctx bi.b_name k (kind_of i s) >>= fun _k' ->
     if k <> Star then return Sens else fail i @@ WrongKind(Sens,k)
 
   | SiCase (s, s0, bi, sn) ->
@@ -417,12 +417,12 @@ let rec kind_of (i : info) (si : si) : kind checker =
 
 let rec type_of (t : term) : (ty * bsi list) checker  =
 
-  ty_debug (tmInfo t) "--> [%3d] Enter type_of: @[%10a@]" !ty_seq
+  ty_debug (tmInfo t) "--> [%3d] Enter type_of: @[%a@]" !ty_seq
     (Print.limit_boxes Print.pp_term) t; incr ty_seq;
 
   (match t with
   (* Variables *)
-  | TmVar(i, v)  ->
+  | TmVar(_i, v)  ->
     get_ctx_length              >>= fun len ->
     get_var_ty v                >>= fun ty  ->
     return (ty, singleton len v)
@@ -476,7 +476,7 @@ let rec type_of (t : term) : (ty * bsi list) checker  =
 
   | TmLetRec(i, x, tya_x, tm_x, e)                      ->
 
-    with_extended_ctx i x.b_name tya_x (type_of tm_x) >>= fun (ty_x, si_x, sis_x) ->
+    with_extended_ctx i x.b_name tya_x (type_of tm_x) >>= fun (ty_x, _si_x, sis_x) ->
 
     (* XXX: Double check: before, this used to be backwards. *)
     (* JH: LGTM *)
@@ -508,7 +508,7 @@ let rec type_of (t : term) : (ty * bsi list) checker  =
     return (ty_e, add_sens sis_x sis_e)
 
   (* Tensor and & *)
-  | TmAmpersand(i, tm1, tm2)      ->
+  | TmAmpersand(_i, tm1, tm2)      ->
 
     type_of tm1 >>= fun (ty1, sis1) ->
     type_of tm2 >>= fun (ty2, sis2) ->
@@ -517,10 +517,10 @@ let rec type_of (t : term) : (ty * bsi list) checker  =
 
   (************************************************************)
   (* Data type manipulation *)
-  | TmFold(i, ty, tm)               ->
+  | TmFold(i, _ty, _tm)               ->
     fail i @@ Internal "Not implemented: fold"
 
-  | TmUnfold (i, tm)                ->
+  | TmUnfold (i, _tm)                ->
     fail i @@ Internal "Not implemented: unfold"
 
   (* Aliases *)
@@ -532,7 +532,7 @@ let rec type_of (t : term) : (ty * bsi list) checker  =
     let tm'         = term_ty_subst 0 tdef_ty tm   in
     type_of tm'
 
-  | TmPair(i, e1, e2) ->
+  | TmPair(_i, e1, e2) ->
 
     type_of e1 >>= fun (ty1, sis1) ->
     type_of e2 >>= fun (ty2, sis2) ->
@@ -570,7 +570,7 @@ let rec type_of (t : term) : (ty * bsi list) checker  =
      could check that both are equal (i.e., t1 <= t2 and t2 <= t1),
      but the resultning typing rule would be too restrictive, no? *)
 
-  | TmUnionCase(i, e, sia_e, ty, b_x, e_l, b_y, e_r)      ->
+  | TmUnionCase(i, e, _sia_e, ty, b_x, e_l, b_y, e_r)      ->
 
     type_of e >>= fun (ty_e, sis_e) ->
 
@@ -588,7 +588,7 @@ let rec type_of (t : term) : (ty * bsi list) checker  =
       return (ty, add_sens (lub_sens sis_l sis_r) (scale_sens (Some (SiLub (si_x, si_y))) sis_e))
 
   (* Type/Sensitivity Abstraction and Application *)
-  | TmTyAbs(i, bi, ki, tm) ->
+  | TmTyAbs(_i, bi, ki, tm) ->
 
     with_extended_ty_ctx bi.b_name ki (type_of tm) >>= fun (ty, sis) ->
     return (TyForall(bi, ki, ty), sup_sens bi ki sis)
@@ -627,7 +627,7 @@ let rec type_of (t : term) : (ty * bsi list) checker  =
       type_of ztm                >>= fun (ty_ztm, sis_ztm) ->
       check_type_sub i ty_ztm ty >>
       return (ty_ztm, sis_ztm)
-    end                          >>= fun (ty_ztm, sis_ztm) ->
+    end                          >>= fun (_ty_ztm, sis_ztm) ->
 
     (* Case for Succ n *)
     with_extended_ty_ctx si.b_name Size begin
@@ -675,7 +675,7 @@ let rec type_of (t : term) : (ty * bsi list) checker  =
       type_of ntm                >>= fun (ty_ntm, sis_ntm) ->
       check_type_sub i ty_ntm ty >>
       return (ty_ntm, sis_ntm)
-    end >>= fun (ty_ntm, sis_ntm) ->
+    end >>= fun (_ty_ntm, sis_ntm) ->
 
     (* Case for cons *)
     with_extended_ty_ctx si.b_name Size begin

@@ -1,0 +1,14 @@
+(library
+ (name dfuzz)
+ (wrapped false)
+ (modules :standard \ dfuzz)
+ (libraries unix menhirLib why3))
+
+(executable
+ (public_name dfuzz)
+ (modules dfuzz)
+ (libraries dfuzz))
+
+(ocamllex lexer)
+(menhir
+ (modules parser))
